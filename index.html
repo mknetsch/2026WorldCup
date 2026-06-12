@@ -31,28 +31,6 @@
     font-size:12px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; font-family:'DM Mono',monospace; }
   .host-strip span { color:var(--text); font-weight:500; }
   .host-strip .sep { opacity:.3; }
-  #keyPanel { display:none; align-items:center; justify-content:center; flex-wrap:wrap; gap:10px;
-    max-width:700px; margin:0 auto 32px; padding:16px 20px;
-    background:rgba(201,168,76,0.07); border:1px solid rgba(201,168,76,0.25); border-radius:4px; }
-  .key-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--gold); white-space:nowrap; }
-  #keyInput { background:rgba(0,0,0,0.4); border:1px solid var(--card-border); border-radius:3px;
-    color:var(--text); font-family:'DM Mono',monospace; font-size:12px; padding:7px 12px; width:260px; outline:none; }
-  #keyInput::placeholder { color:var(--muted); }
-  .key-btn { padding:7px 16px; border:none; border-radius:3px; cursor:pointer;
-    font-family:'DM Mono',monospace; font-size:11px; letter-spacing:1px; text-transform:uppercase; }
-  #keySubmit { background:var(--gold); color:#0D1F16; font-weight:700; }
-  #keyClear { background:transparent; border:1px solid var(--card-border); color:var(--muted); display:none; }
-  .key-hint { font-size:10px; color:var(--muted); font-family:'DM Mono',monospace; width:100%; text-align:center; }
-  .key-hint a { color:var(--gold); }
-  #statusBar { display:none; align-items:center; justify-content:center; gap:10px;
-    padding:8px 20px; margin-bottom:24px; font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); }
-  .status-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-  .status-dot.live { background:var(--advance); animation:pulse 2s infinite; }
-  .status-dot.loading { background:var(--gold); animation:pulse 1s infinite; }
-  .status-dot.warn { background:var(--third); }
-  .status-dot.error { background:#e05c5c; }
-  #refreshBtn { padding:3px 10px; background:transparent; border:1px solid var(--card-border);
-    border-radius:2px; color:var(--muted); font-family:'DM Mono',monospace; font-size:10px; cursor:pointer; }
   .legend { display:flex; justify-content:center; gap:24px; padding:0 20px 40px; flex-wrap:wrap; }
   .legend-item { display:flex; align-items:center; gap:8px; font-size:11px; letter-spacing:1.5px;
     text-transform:uppercase; color:var(--muted); font-family:'DM Mono',monospace; }
@@ -150,20 +128,6 @@
   </div>
 </header>
 
-<div id="keyPanel">
-  <span class="key-label">API Key</span>
-  <input id="keyInput" type="password" placeholder="Paste API-Football key for live scores…">
-  <button class="key-btn" id="keySubmit">Connect</button>
-  <button class="key-btn" id="keyClear">Disconnect</button>
-  <span class="key-hint">Free key at <a href="https://dashboard.api-football.com/register" target="_blank">dashboard.api-football.com</a> — 100 calls/day — updates every 5 min</span>
-</div>
-
-<div id="statusBar">
-  <span class="status-dot" id="statusDot"></span>
-  <span id="statusText"></span>
-  <button id="refreshBtn" onclick="fetchStandings()">Refresh</button>
-</div>
-
 <div class="legend">
   <div class="legend-item"><div class="legend-dot" style="background:var(--advance)"></div>Automatic qualification (top 2)</div>
   <div class="legend-item"><div class="legend-dot" style="background:var(--third)"></div>Possible 3rd-place berth (best 8 of 12)</div>
@@ -184,13 +148,6 @@
 <footer>Tournament begins June 11 · Live standings via API-Football · FIFA rankings as of April 1, 2026</footer>
 
 <script>
-var API_KEY = '';
-var API_BASE = 'https://v3.football.api-sports.io';
-var LEAGUE_ID = 1;
-var SEASON = 2026;
-var POLL_MS = 5 * 60 * 1000;
-var pollTimer = null;
-
 var CODES = {
   'Mexico':'MX','South Africa':'ZA','South Korea':'KR','Czechia':'CZ',
   'Canada':'CA','Bosnia & Herz.':'BA','Qatar':'QA','Switzerland':'CH',
@@ -264,6 +221,20 @@ groups.forEach(function(g) {
 var teamByName = {};
 groups.forEach(function(g) { g.teams.forEach(function(t) { teamByName[t.name] = t; }); });
 
+// ── RESULTS SO FAR (manually entered, updated as matches finish) ────────────
+function setResult(name, mp, w, d, l, gf, ga) {
+  var t = teamByName[name];
+  if (!t) return;
+  t.mp = mp; t.w = w; t.d = d; t.l = l;
+  t.gf = gf; t.ga = ga; t.gd = gf - ga;
+  t.pts = w*3 + d;
+}
+// Group A: Mexico 2-0 South Africa (Jun 11); South Korea 2-1 Czechia (Jun 11/12)
+setResult('Mexico',      1, 1, 0, 0, 2, 0);
+setResult('South Africa',1, 0, 0, 1, 0, 2);
+setResult('South Korea', 1, 1, 0, 0, 2, 1);
+setResult('Czechia',     1, 0, 0, 1, 1, 2);
+
 function renderGroups() {
   var container = document.getElementById('groups');
   container.innerHTML = '';
@@ -303,75 +274,6 @@ function renderGroups() {
     html += '<div class="prestart-note">Kickoff: June 11, 2026</div>';
     card.innerHTML = html;
     container.appendChild(card);
-  });
-}
-
-function setStatus(type, msg) {
-  var bar = document.getElementById('statusBar');
-  var dot = document.getElementById('statusDot');
-  var txt = document.getElementById('statusText');
-  var panel = document.getElementById('keyPanel');
-  bar.style.display = 'flex';
-  txt.textContent = msg;
-  dot.className = 'status-dot ' + type;
-  panel.style.display = type === 'error' ? 'flex' : 'none';
-}
-
-function applyStandings(apiData) {
-  apiData.forEach(function(groupArr) {
-    groupArr.forEach(function(entry) {
-      var team = teamByName[normName(entry.team.name)];
-      if (!team) return;
-      var s = entry.all;
-      team.mp = s.played; team.w = s.win; team.d = s.draw; team.l = s.lose;
-      team.gf = s.goals.for; team.ga = s.goals.against;
-      team.gd = s.goals.for - s.goals.against; team.pts = entry.points;
-    });
-  });
-  renderGroups();
-  setStatus('live', 'Live · Last updated ' + new Date().toLocaleTimeString());
-}
-
-function fetchStandings() {
-  if (!API_KEY) return;
-  setStatus('loading', 'Fetching live standings…');
-  fetch(API_BASE+'/standings?league='+LEAGUE_ID+'&season='+SEASON, {headers:{'x-apisports-key':API_KEY}})
-    .then(function(r) { if (!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
-    .then(function(json) {
-      if (json.errors && Object.keys(json.errors).length) {
-        setStatus('error', 'API error: '+(json.errors.token||json.errors.requests||JSON.stringify(json.errors))); return;
-      }
-      var s = json.response && json.response[0] && json.response[0].league && json.response[0].league.standings;
-      if (!s || !s.length) { setStatus('warn', 'No standings yet — tournament may not have started.'); return; }
-      applyStandings(s);
-    })
-    .catch(function(err) { setStatus('error', 'Fetch failed: '+err.message); });
-}
-
-function startPolling() {
-  clearInterval(pollTimer);
-  fetchStandings();
-  pollTimer = setInterval(fetchStandings, POLL_MS);
-}
-
-function initKeyPanel() {
-  var saved = localStorage.getItem('wc26_api_key');
-  if (saved) { API_KEY = saved; document.getElementById('keyClear').style.display = 'inline-block'; startPolling(); }
-  document.getElementById('keySubmit').addEventListener('click', function() {
-    var val = document.getElementById('keyInput').value.trim();
-    if (!val) return;
-    API_KEY = val; localStorage.setItem('wc26_api_key', val);
-    document.getElementById('keyInput').value = '';
-    document.getElementById('keyClear').style.display = 'inline-block';
-    startPolling();
-  });
-  document.getElementById('keyClear').addEventListener('click', function() {
-    API_KEY = ''; localStorage.removeItem('wc26_api_key'); clearInterval(pollTimer);
-    setStatus('warn', 'Disconnected — showing static data.');
-    document.getElementById('keyPanel').style.display = 'flex';
-    document.getElementById('keyClear').style.display = 'none';
-    groups.forEach(function(g) { g.teams.forEach(function(t) { t.mp=t.w=t.d=t.l=t.gf=t.ga=t.gd=t.pts=0; }); });
-    renderGroups();
   });
 }
 
@@ -415,7 +317,6 @@ function buildRefTable() {
 
 renderGroups();
 buildRefTable();
-initKeyPanel();
 </script>
 </body>
 </html>
