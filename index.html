@@ -138,14 +138,14 @@
 <section class="ref-section">
   <div class="ref-header">
     <div class="ref-title">TEAM REFERENCE</div>
-    <div class="ref-subtitle">All 48 nations · FIFA Rankings (April 1, 2026) · Participant assignments</div>
+    <div class="ref-subtitle">All 48 nations · FIFA Rankings (June 11, 2026) · Participant assignments</div>
   </div>
   <div class="ref-table-wrap">
     <table class="ref-table" id="refTable"></table>
   </div>
 </section>
 
-<footer>Tournament begins June 11 · Live standings via API-Football · FIFA rankings as of April 1, 2026</footer>
+<footer>Tournament begins June 11 · Live standings via API-Football · FIFA rankings as of June 11, 2026</footer>
 
 <script>
 var CODES = {
@@ -264,6 +264,18 @@ setResult('Japan',       1, 0, 1, 0, 2, 2);
 // Group F: Sweden 5-1 Tunisia (Jun 14)
 setResult('Sweden',  1, 1, 0, 0, 5, 1);
 setResult('Tunisia', 1, 0, 0, 1, 1, 5);
+// Group H: Spain 0-0 Cape Verde (Jun 15)
+setResult('Spain',      1, 0, 1, 0, 0, 0);
+setResult('Cape Verde', 1, 0, 1, 0, 0, 0);
+// Group G: Belgium 1-1 Egypt (Jun 15)
+setResult('Belgium', 1, 0, 1, 0, 1, 1);
+setResult('Egypt',   1, 0, 1, 0, 1, 1);
+// Group H: Saudi Arabia 1-1 Uruguay (Jun 15)
+setResult('Saudi Arabia', 1, 0, 1, 0, 1, 1);
+setResult('Uruguay',      1, 0, 1, 0, 1, 1);
+// Group G: Iran 2-2 New Zealand (Jun 15)
+setResult('Iran',        1, 0, 1, 0, 2, 2);
+setResult('New Zealand', 1, 0, 1, 0, 2, 2);
 
 function renderGroups() {
   var container = document.getElementById('groups');
@@ -308,18 +320,19 @@ function renderGroups() {
 }
 
 var refData = [
-  ['France','I',1],['Spain','H',2],['Argentina','J',3],['England','L',4],
-  ['Portugal','K',5],['Brazil','C',6],['Netherlands','F',7],['Morocco','C',8],
-  ['Belgium','G',9],['Germany','E',10],['Croatia','L',11],['Uruguay','H',13],
-  ['Switzerland','B',14],['Colombia','K',15],['Mexico','A',15],['USA','D',16],
-  ['Japan','F',17],['Iran','G',18],['Senegal','I',21],['Austria','J',23],
-  ['Australia','D',24],['South Korea','A',25],['Ecuador','E',28],['Egypt','G',29],
-  ['Canada','B',30],['Cote dIvoire','E',33],['Qatar','B',35],['Algeria','J',36],
-  ['Sweden','F',39],['Tunisia','F',40],['Czechia','A',41],['Turkiye','D',42],
-  ['Norway','I',44],['Scotland','C',47],['DR Congo','K',51],['Bosnia & Herz.','B',52],
-  ['Panama','L',53],['Saudi Arabia','H',57],['South Africa','A',60],['Iraq','I',61],
-  ['Uzbekistan','K',62],['Paraguay','D',64],['Ghana','L',65],['Jordan','J',68],
-  ['Cape Verde','H',70],['Curacao','E',81],['Haiti','C',83],['New Zealand','G',95]
+  ['Argentina','J',1],['Spain','H',2],['France','I',3],['England','L',4],
+  ['Portugal','K',5],['Brazil','C',6],['Morocco','C',7],['Netherlands','F',8],
+  ['Belgium','G',9],['Germany','E',10],['Croatia','L',11],['Colombia','K',13],
+  ['Mexico','A',14],['Senegal','I',15],['Uruguay','H',16],['USA','D',17],
+  ['Japan','F',18],['Switzerland','B',19],['Iran','G',20],['Turkiye','D',22],
+  ['Ecuador','E',23],['Austria','J',24],['South Korea','A',25],['Australia','D',27],
+  ['Algeria','J',28],['Egypt','G',29],['Canada','B',30],['Norway','I',31],
+  ['Cote dIvoire','E',33],['Panama','L',34],['Sweden','F',38],['Czechia','A',40],
+  ['Paraguay','D',41],['Scotland','C',42],['Tunisia','F',45],['DR Congo','K',46],
+  ['Uzbekistan','K',50],['Qatar','B',56],['Iraq','I',57],['South Africa','A',60],
+  ['Saudi Arabia','H',61],['Jordan','J',63],['Bosnia & Herz.','B',64],
+  ['Cape Verde','H',67],['Ghana','L',68],['New Zealand','G',72],
+  ['Haiti','C',80],['Curacao','E',85]
 ];
 
 function buildRefTable() {
