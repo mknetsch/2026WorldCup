@@ -83,6 +83,12 @@
     text-transform:uppercase; color:var(--advance); background:rgba(62,191,110,0.15);
     border:1px solid rgba(62,191,110,0.3); border-radius:2px; padding:1px 5px;
     margin-left:6px; vertical-align:middle; white-space:nowrap; }
+  .team-row.eliminated { background:rgba(224,92,92,0.06); opacity:0.6; }
+  .team-row.eliminated .country-name { color:#c97a7a; text-decoration:line-through; text-decoration-color:rgba(224,92,92,0.5); }
+  .eliminated-badge { font-size:8px; font-family:'DM Mono',monospace; letter-spacing:1px;
+    text-transform:uppercase; color:#e05c5c; background:rgba(224,92,92,0.12);
+    border:1px solid rgba(224,92,92,0.3); border-radius:2px; padding:1px 5px;
+    margin-left:6px; vertical-align:middle; white-space:nowrap; }
   .prestart-note { text-align:center; padding:8px 18px 4px; font-size:10px; letter-spacing:1.5px;
     text-transform:uppercase; color:var(--muted); font-family:'DM Mono',monospace; opacity:.6; }
   .ref-section { max-width:1400px; margin:0 auto 60px; padding:0 24px; }
@@ -138,6 +144,7 @@
   <div class="legend-item"><div class="legend-dot" style="background:var(--advance)"></div>Automatic qualification (top 2)</div>
   <div class="legend-item"><div class="legend-dot" style="background:var(--third)"></div>Possible 3rd-place berth (best 8 of 12)</div>
   <div class="legend-item"><div class="legend-dot" style="background:rgba(62,191,110,0.4);border:1px solid var(--advance)"></div>Mathematically through ✓</div>
+  <div class="legend-item"><div class="legend-dot" style="background:rgba(224,92,92,0.4);border:1px solid #e05c5c"></div>Mathematically eliminated ✕</div>
 </div>
 
 <div class="groups-grid" id="groups"></div>
@@ -247,16 +254,16 @@ setResult('Canada',         2, 1, 1, 0, 7, 1); // D Bosnia 1-1, W Qatar 6-0
 setResult('Switzerland',    2, 1, 1, 0, 5, 2); // D Qatar 1-1, W Bosnia 4-1
 setResult('Bosnia & Herz.', 2, 0, 1, 1, 2, 5);// D Canada 1-1, L Switzerland 1-4
 setResult('Qatar',          2, 0, 1, 1, 1, 7); // D Switzerland 1-1, L Canada 0-6
-// Group C (1 game each played)
-setResult('Scotland', 1, 1, 0, 0, 1, 0);       // W Haiti 1-0
-setResult('Brazil',   1, 0, 1, 0, 1, 1);       // D Morocco 1-1
-setResult('Morocco',  1, 0, 1, 0, 1, 1);       // D Brazil 1-1
-setResult('Haiti',    1, 0, 0, 1, 0, 1);       // L Scotland 0-1
-// Group D (1 game each played)
-setResult('USA',       1, 1, 0, 0, 4, 1);      // W Paraguay 4-1
-setResult('Australia', 1, 1, 0, 0, 2, 0);      // W Turkiye 2-0
-setResult('Paraguay',  1, 0, 0, 1, 1, 4);      // L USA 1-4
-setResult('Turkiye',   1, 0, 0, 1, 0, 2);      // L Australia 0-2
+// Group C (2 games each played)
+setResult('Brazil',   2, 1, 1, 0, 4, 1);       // D Morocco 1-1, W Haiti 3-0
+setResult('Morocco',  2, 1, 1, 0, 2, 1);       // D Brazil 1-1, W Scotland 1-0
+setResult('Scotland', 2, 1, 0, 1, 1, 1);       // W Haiti 1-0, L Morocco 0-1
+setResult('Haiti',    2, 0, 0, 2, 0, 4);       // L Scotland 0-1, L Brazil 0-3
+// Group D (2 games each played)
+setResult('USA',       2, 2, 0, 0, 6, 1);      // W Paraguay 4-1, W Australia 2-0
+setResult('Australia', 2, 1, 0, 1, 2, 2);      // W Turkiye 2-0, L USA 0-2
+setResult('Paraguay',  2, 1, 0, 1, 2, 4);      // L USA 1-4, W Turkiye 1-0
+setResult('Turkiye',   2, 0, 0, 2, 0, 3);      // L Australia 0-2, L Paraguay 0-1
 // Group E (1 game each played)
 setResult('Germany',      1, 1, 0, 0, 7, 1);   // W Curacao 7-1
 setResult('Cote dIvoire', 1, 1, 0, 0, 1, 0);   // W Ecuador 1-0
@@ -302,7 +309,16 @@ setResult('Panama',  1, 0, 0, 1, 0, 1);        // L Ghana 0-1
 // A team is guaranteed through when it cannot be overtaken even if it loses
 // its remaining games. Update this list as teams clinch.
 var qualified = {
-  'Mexico': true     // 6 pts after 2 games, clinched top spot in Group A
+  'Mexico': true,  // 6 pts after 2 games, clinched top spot in Group A
+  'USA': true      // 6 pts after 2 games, clinched top spot in Group D
+};
+
+// ── MATHEMATICALLY ELIMINATED TEAMS ──────────────────────────────────────────
+// A team is eliminated when it cannot reach a top-2 (or realistic 3rd-place)
+// finish even with maximum points the rest of the way.
+var eliminated = {
+  'Haiti': true,    // Max reachable 3 pts; Brazil & Morocco both guaranteed >=4 pts in Group C
+  'Turkiye': true   // 0 pts after 2 losses; max reachable 3 pts, loses tiebreaker to Australia/Paraguay
 };
 
 function renderGroups() {
@@ -322,13 +338,17 @@ function renderGroups() {
       +'<div class="col-h">GD</div><div class="col-h">GF</div><div class="col-h">GA</div><div class="col-h">PTS</div></div>';
     sorted.forEach(function(team, i) {
       var isQualified = qualified[team.name] || false;
+      var isEliminated = eliminated[team.name] || false;
       var rc = 'team-row'
         + (i < 2 ? ' advances' : i === 2 ? ' third-place' : '')
-        + (isQualified ? ' qualified' : '');
+        + (isQualified ? ' qualified' : '')
+        + (isEliminated ? ' eliminated' : '');
       var gd = team.gd > 0 ? '+'+team.gd : team.gd;
       var pc = team.pts > 0 ? 'stat pts nonzero' : 'stat pts';
       var person = personAssignments[team.name] || '';
-      var badge = isQualified ? '<span class="qualified-badge">✓ Through</span>' : '';
+      var badge = '';
+      if (isQualified) badge = '<span class="qualified-badge">✓ Through</span>';
+      else if (isEliminated) badge = '<span class="eliminated-badge">✕ Out</span>';
       html += '<div class="'+rc+'">'
         +'<div class="team-info">'
         +'<span class="pos-num">'+(i+1)+'</span>'
