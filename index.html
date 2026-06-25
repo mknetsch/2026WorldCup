@@ -139,10 +139,13 @@
   .bracket-team:last-child { border-bottom:none; }
   .bracket-team .bt-code { font-size:8px; font-family:'DM Mono',monospace; color:var(--muted);
     width:28px; flex-shrink:0; letter-spacing:0.5px; }
+  .bracket-team .bt-info { display:flex; flex-direction:column; gap:1px; min-width:0; }
   .bracket-team .bt-name { font-size:12px; font-weight:500; color:var(--text); white-space:nowrap;
     overflow:hidden; text-overflow:ellipsis; }
   .bracket-team .bt-name.tbd { color:var(--muted); font-style:italic; font-weight:400; }
   .bracket-team .bt-name.confirmed { color:#7eeaaa; }
+  .bracket-team .bt-person { font-size:9px; font-family:'DM Mono',monospace; color:var(--muted);
+    letter-spacing:1.2px; text-transform:uppercase; opacity:.75; }
   .bracket-divider { height:1px; background:rgba(201,168,76,0.15); margin:0 12px; position:relative; }
   .bracket-divider::after { content:'vs'; position:absolute; left:50%; top:-8px; transform:translateX(-50%);
     font-size:8px; font-family:'DM Mono',monospace; color:var(--gold); background:var(--card); padding:0 4px; }
@@ -277,21 +280,21 @@ function setResult(name, mp, w, d, l, gf, ga) {
   t.pts = w*3 + d;
 }
 // ── CUMULATIVE STANDINGS after Matchday 2 (through June 18) ─────────────────
-// Group A (2 games each played)
-setResult('Mexico',       2, 2, 0, 0, 3, 0);   // W South Africa 2-0, W South Korea 1-0
-setResult('South Korea',  2, 1, 0, 1, 2, 2);   // W Czechia 2-1, L Mexico 0-1
-setResult('Czechia',      2, 0, 1, 1, 2, 3);   // L South Korea 1-2, D South Africa 1-1
-setResult('South Africa', 2, 0, 1, 1, 1, 3);   // L Mexico 0-2, D Czechia 1-1
-// Group B (2 games each played)
-setResult('Canada',         2, 1, 1, 0, 7, 1); // D Bosnia 1-1, W Qatar 6-0
-setResult('Switzerland',    2, 1, 1, 0, 5, 2); // D Qatar 1-1, W Bosnia 4-1
-setResult('Bosnia & Herz.', 2, 0, 1, 1, 2, 5);// D Canada 1-1, L Switzerland 1-4
-setResult('Qatar',          2, 0, 1, 1, 1, 7); // D Switzerland 1-1, L Canada 0-6
-// Group C (2 games each played)
-setResult('Brazil',   2, 1, 1, 0, 4, 1);       // D Morocco 1-1, W Haiti 3-0
-setResult('Morocco',  2, 1, 1, 0, 2, 1);       // D Brazil 1-1, W Scotland 1-0
-setResult('Scotland', 2, 1, 0, 1, 1, 1);       // W Haiti 1-0, L Morocco 0-1
-setResult('Haiti',    2, 0, 0, 2, 0, 4);       // L Scotland 0-1, L Brazil 0-3
+// Group A: COMPLETE
+setResult('Mexico',       3, 3, 0, 0, 6, 0);   // W SA 2-0, W SKor 1-0, W CZE 3-0
+setResult('South Africa', 3, 1, 1, 1, 2, 3);   // L MEX 0-2, D CZE 1-1, W SKor 1-0
+setResult('South Korea',  3, 1, 0, 2, 2, 3);   // W CZE 2-1, L MEX 0-1, L SA 0-1
+setResult('Czechia',      3, 0, 1, 2, 2, 6);   // L SKor 1-2, D SA 1-1, L MEX 0-3
+// Group B: COMPLETE
+setResult('Switzerland',    3, 2, 1, 0, 7, 3); // D QAT 1-1, W BOS 4-1, W CAN 2-1
+setResult('Canada',         3, 1, 1, 1, 8, 3); // D BOS 1-1, W QAT 6-0, L SUI 1-2
+setResult('Bosnia & Herz.', 3, 1, 1, 1, 5, 6); // D CAN 1-1, L SUI 1-4, W QAT 3-1
+setResult('Qatar',          3, 0, 1, 2, 2, 10);// D SUI 1-1, L CAN 0-6, L BOS 1-3
+// Group C: COMPLETE
+setResult('Brazil',   3, 2, 1, 0, 7, 1);       // D MAR 1-1, W HAI 3-0, W SCO 3-0
+setResult('Morocco',  3, 2, 1, 0, 6, 3);       // D BRA 1-1, W SCO 1-0, W HAI 4-2
+setResult('Scotland', 3, 1, 0, 2, 1, 4);       // W HAI 1-0, L MAR 0-1, L BRA 0-3
+setResult('Haiti',    3, 0, 0, 3, 2, 11);      // L SCO 0-1, L BRA 0-3, L MAR 2-4
 // Group D (2 games each played)
 setResult('USA',       2, 2, 0, 0, 6, 1);      // W Paraguay 4-1, W Australia 2-0
 setResult('Australia', 2, 1, 0, 1, 2, 2);      // W Turkiye 2-0, L USA 0-2
@@ -342,13 +345,18 @@ setResult('Panama',  2, 0, 0, 2, 0, 2);        // L Ghana 0-1, L Croatia 0-1
 // A team is guaranteed through when it cannot be overtaken even if it loses
 // its remaining games. Update this list as teams clinch.
 var qualified = {
-  'Mexico': true,      // 6 pts, clinched Group A winners
-  'USA': true,         // 6 pts, clinched Group D winners
-  'Germany': true,     // 6 pts, clinched Group E winners
-  'Norway': true,      // 6 pts, clinched Group I top 2
-  'France': true,      // 6 pts, clinched Group I top 2
-  'Argentina': true,   // 6 pts, clinched Group J winners
-  'Colombia': true     // 6 pts, clinched Group K winners
+  'Mexico': true,          // 9 pts, Group A winners
+  'South Africa': true,    // 4 pts, Group A runners-up
+  'Switzerland': true,     // 7 pts, Group B winners
+  'Canada': true,          // 4 pts, Group B runners-up
+  'Brazil': true,          // 7 pts, Group C winners
+  'Morocco': true,         // 7 pts, Group C runners-up
+  'USA': true,             // 6 pts, Group D winners
+  'Germany': true,         // 6 pts, Group E winners
+  'Norway': true,          // 6 pts, Group I top 2
+  'France': true,          // 6 pts, Group I top 2
+  'Argentina': true,       // 6 pts, Group J winners
+  'Colombia': true         // 6 pts, Group K winners
 };
 
 // ── MATHEMATICALLY ELIMINATED TEAMS ──────────────────────────────────────────
@@ -361,11 +369,13 @@ var qualified = {
 // can be enough for a 3rd-place spot depending on other group results.
 // No team will be marked eliminated until their 3rd-place path is also closed.
 var eliminated = {
-  'Turkiye': true,  // 0pts GD-3: cannot reach best-8 3rd place (confirmed Jun 19)
-  'Haiti': true,    // 0pts GD-4: cannot reach best-8 3rd place (confirmed Jun 19)
-  'Tunisia': true,  // 0pts GD-8: cannot reach best-8 3rd place (confirmed Jun 20)
-  'Jordan': true,   // 0pts GD-3: cannot catch 3rd-place teams in Group J (confirmed Jun 22)
-  'Panama': true    // 0pts GD-2: cannot catch 3rd-place teams in Group L (confirmed Jun 23)
+  'Turkiye': true,      // 0pts GD-3: confirmed Jun 19
+  'Haiti': true,        // 0pts GD-4: confirmed Jun 19
+  'Tunisia': true,      // 0pts GD-8: confirmed Jun 20
+  'Jordan': true,       // 0pts GD-3: confirmed Jun 22
+  'Panama': true,       // 0pts GD-2: confirmed Jun 23
+  'Czechia': true,      // 1pt GD-4: Group A complete, finished 4th
+  'Qatar': true         // 1pt GD-8: Group B complete, finished 4th
 };
 
 function renderGroups() {
@@ -462,10 +472,10 @@ buildRefTable();
 
 // ── ROUND OF 32 BRACKET ───────────────────────────────────────────────────────
 var bracketMatches = [
-  { num:73, date:'Jun 28', venue:'Los Angeles',    t1:{label:'2nd Group A', name:'TBD',     conf:false}, t2:{label:'2nd Group B',          name:'TBD',     conf:false} },
+  { num:73, date:'Jun 28', venue:'Los Angeles',    t1:{label:'2nd Group A', name:'South Africa', conf:true}, t2:{label:'2nd Group B',   name:'Canada',  conf:true} },
   { num:74, date:'Jun 29', venue:'Boston',         t1:{label:'1st Group E', name:'Germany', conf:true},  t2:{label:'Best 3rd (A/B/C/D/F)', name:'TBD',     conf:false} },
-  { num:75, date:'Jun 28', venue:'Seattle',        t1:{label:'1st Group F', name:'TBD',     conf:false}, t2:{label:'2nd Group C',          name:'TBD',     conf:false} },
-  { num:76, date:'Jun 28', venue:'Miami',          t1:{label:'1st Group C', name:'TBD',     conf:false}, t2:{label:'2nd Group F',          name:'TBD',     conf:false} },
+  { num:75, date:'Jun 28', venue:'Seattle',        t1:{label:'1st Group F', name:'TBD',     conf:false}, t2:{label:'2nd Group C',          name:'Morocco', conf:true} },
+  { num:76, date:'Jun 28', venue:'Miami',          t1:{label:'1st Group C', name:'Brazil',  conf:true},  t2:{label:'2nd Group F',          name:'TBD',     conf:false} },
   { num:77, date:'Jun 29', venue:'Dallas',         t1:{label:'1st Group I', name:'TBD',     conf:false}, t2:{label:'Best 3rd (C/D/F/G/H)', name:'TBD',     conf:false} },
   { num:78, date:'Jun 30', venue:'Dallas',         t1:{label:'2nd Group E', name:'TBD',     conf:false}, t2:{label:'2nd Group I',          name:'TBD',     conf:false} },
   { num:79, date:'Jun 30', venue:'Mexico City',    t1:{label:'1st Group A', name:'Mexico',  conf:true},  t2:{label:'Best 3rd (C/E/F/H/I)', name:'TBD',     conf:false} },
@@ -474,7 +484,7 @@ var bracketMatches = [
   { num:82, date:'Jul 1',  venue:'San Francisco',  t1:{label:'1st Group G', name:'TBD',     conf:false}, t2:{label:'Best 3rd (A/E/H/I/J)', name:'TBD',     conf:false} },
   { num:83, date:'Jul 2',  venue:'Houston',        t1:{label:'2nd Group K', name:'TBD',     conf:false}, t2:{label:'2nd Group L',          name:'TBD',     conf:false} },
   { num:84, date:'Jul 2',  venue:'Miami',          t1:{label:'1st Group H', name:'TBD',     conf:false}, t2:{label:'2nd Group J',          name:'TBD',     conf:false} },
-  { num:85, date:'Jul 2',  venue:'Vancouver',      t1:{label:'1st Group B', name:'TBD',     conf:false}, t2:{label:'Best 3rd (E/F/G/I/J)', name:'TBD',     conf:false} },
+  { num:85, date:'Jul 2',  venue:'Vancouver',      t1:{label:'1st Group B', name:'Switzerland', conf:true}, t2:{label:'Best 3rd (E/F/G/I/J)', name:'TBD', conf:false} },
   { num:86, date:'Jul 3',  venue:'Philadelphia',   t1:{label:'1st Group J', name:'Argentina', conf:true},  t2:{label:'2nd Group H',          name:'TBD',     conf:false} },
   { num:87, date:'Jul 3',  venue:'Kansas City',    t1:{label:'1st Group K', name:'Colombia', conf:true},  t2:{label:'Best 3rd (D/E/I/J/L)', name:'TBD',     conf:false} },
   { num:88, date:'Jul 3',  venue:'Arlington',      t1:{label:'2nd Group D', name:'TBD',     conf:false}, t2:{label:'2nd Group G',          name:'TBD',     conf:false} },
@@ -491,7 +501,12 @@ function renderBracket() {
       var nameClass = t.conf ? 'bt-name confirmed' : 'bt-name tbd';
       var display   = t.conf ? t.name : t.label;
       var code      = t.conf && CODES[t.name] ? '<span class="bt-code">'+CODES[t.name]+'</span>' : '<span class="bt-code"></span>';
-      return '<div class="bracket-team">'+code+'<span class="'+nameClass+'">'+display+'</span></div>';
+      var person    = t.conf && personAssignments[t.name] ? '<span class="bt-person">'+personAssignments[t.name]+'</span>' : '';
+      return '<div class="bracket-team">'+code
+        +'<div class="bt-info">'
+        +'<span class="'+nameClass+'">'+display+'</span>'
+        +person
+        +'</div></div>';
     }
     card.innerHTML = '<div class="bracket-match-header">'
       +'<span class="match-num">Match '+m.num+'</span>'
