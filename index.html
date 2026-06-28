@@ -142,13 +142,19 @@
   .bracket-team:last-child { border-bottom:none; }
   .bracket-team .bt-code { font-size:8px; font-family:'DM Mono',monospace; color:var(--muted);
     width:28px; flex-shrink:0; letter-spacing:0.5px; }
-  .bracket-team .bt-info { display:flex; flex-direction:column; gap:1px; min-width:0; }
+  .bracket-team .bt-info { display:flex; flex-direction:column; gap:1px; min-width:0; flex:1; }
   .bracket-team .bt-name { font-size:12px; font-weight:500; color:var(--text); white-space:nowrap;
     overflow:hidden; text-overflow:ellipsis; }
   .bracket-team .bt-name.tbd { color:var(--muted); font-style:italic; font-weight:400; }
-  .bracket-team .bt-name.confirmed { color:#7eeaaa; }
+  .bracket-team .bt-name.confirmed { color:var(--muted); }
   .bracket-team .bt-person { font-size:9px; font-family:'DM Mono',monospace; color:var(--muted);
     letter-spacing:1.2px; text-transform:uppercase; opacity:.75; }
+  .bt-score { font-size:14px; font-weight:600; font-family:'DM Mono',monospace; color:var(--text); flex-shrink:0; padding-left:8px; }
+  .bt-score.winner-score { color:var(--gold); }
+  .bt-score.loser-score  { color:var(--muted); }
+  .bracket-team .bt-name.winner { color:#7eeaaa; font-weight:600; }
+  .bracket-team .bt-name.loser  { color:#e05c5c; text-decoration:line-through; text-decoration-color:rgba(224,92,92,0.6); }
+
   .bracket-divider { height:1px; background:rgba(201,168,76,0.15); margin:0 12px; position:relative; }
   .bracket-divider::after { content:'vs'; position:absolute; left:50%; top:-8px; transform:translateX(-50%);
     font-size:8px; font-family:'DM Mono',monospace; color:var(--gold); background:var(--card); padding:0 4px; }
@@ -179,6 +185,14 @@
   <div class="bracket-grid" id="bracketGrid"></div>
 </section>
 
+<section class="bracket-section">
+  <div class="bracket-header">
+    <div class="bracket-title">ROUND OF 16</div>
+    <div class="bracket-subtitle">July 4–7 · 8 matches · Winners of Round of 32 matches</div>
+  </div>
+  <div class="bracket-grid" id="r16Grid"></div>
+</section>
+
 <div class="legend">
   <div class="legend-item"><div class="legend-dot" style="background:var(--advance)"></div>Automatic qualification (top 2)</div>
   <div class="legend-item"><div class="legend-dot" style="background:var(--third)"></div>Possible 3rd-place berth (best 8 of 12)</div>
@@ -188,8 +202,9 @@
 
 <div class="groups-grid" id="groups"></div>
 
-  <div class="ref-header">
-    <div class="ref-title">PARTICIPANT REFERENCE</div>
+
+
+
     <div class="ref-subtitle">Country assignments · Green = still in · Red = eliminated</div>
   </div>
   <div class="ref-table-wrap">
@@ -542,7 +557,7 @@ renderGroups();
 
 // ── ROUND OF 32 BRACKET ───────────────────────────────────────────────────────
 var bracketMatches = [
-  { num:73, date:'Jun 28', venue:'Los Angeles',    t1:{label:'2nd Group A', name:'South Africa', conf:true}, t2:{label:'2nd Group B',   name:'Canada',  conf:true} },
+  { num:73, date:'Jun 28', venue:'Los Angeles', winner:'Canada', t1:{label:'2nd Group A', name:'South Africa', conf:true, score:0}, t2:{label:'2nd Group B', name:'Canada', conf:true, score:1} },
   { num:74, date:'Jun 29', venue:'Boston',         t1:{label:'1st Group E', name:'Germany', conf:true},  t2:{label:'3rd Group F',           name:'Sweden',  conf:true} },
   { num:75, date:'Jun 28', venue:'Seattle',        t1:{label:'1st Group F', name:'Netherlands', conf:true}, t2:{label:'2nd Group C',        name:'Morocco', conf:true} },
   { num:76, date:'Jun 28', venue:'Miami',          t1:{label:'1st Group C', name:'Brazil',  conf:true},  t2:{label:'2nd Group F',          name:'Japan',   conf:true} },
@@ -567,28 +582,113 @@ function renderBracket() {
   bracketMatches.forEach(function(m) {
     var card = document.createElement('div');
     card.className = 'bracket-match';
-    function teamRow(t) {
+    function teamRow(t, isWinner, isLoser) {
       var nameClass = t.conf ? 'bt-name confirmed' : 'bt-name tbd';
+      if (isWinner) nameClass = 'bt-name winner';
+      if (isLoser)  nameClass = 'bt-name loser';
       var display   = t.conf ? t.name : t.label;
       var code      = t.conf && CODES[t.name] ? '<span class="bt-code">'+CODES[t.name]+'</span>' : '<span class="bt-code"></span>';
       var person    = t.conf && personAssignments[t.name] ? '<span class="bt-person">'+personAssignments[t.name]+'</span>' : '';
+      var scoreHtml = '';
+      if (t.score !== undefined) {
+        var sc = isWinner ? 'bt-score winner-score' : 'bt-score loser-score';
+        scoreHtml = '<span class="'+sc+'">'+t.score+'</span>';
+      }
       return '<div class="bracket-team">'+code
         +'<div class="bt-info">'
         +'<span class="'+nameClass+'">'+display+'</span>'
         +person
-        +'</div></div>';
+        +'</div>'
+        +scoreHtml
+        +'</div>';
     }
+    var t1win = m.winner && m.t1.name === m.winner;
+    var t2win = m.winner && m.t2.name === m.winner;
     card.innerHTML = '<div class="bracket-match-header">'
       +'<span class="match-num">Match '+m.num+'</span>'
       +'<span>'+m.date+' · '+m.venue+'</span>'
       +'</div>'
-      +teamRow(m.t1)
+      +teamRow(m.t1, t1win, t2win)
       +'<div class="bracket-divider"></div>'
-      +teamRow(m.t2);
+      +teamRow(m.t2, t2win, t1win)
+;
     grid.appendChild(card);
   });
 }
 renderBracket();
+
+// ── ROUND OF 16 ───────────────────────────────────────────────────────────────
+var r16Matches = [
+  { num:89, date:'Jul 4',  venue:'Houston',             t1:'W73', t2:'W75' },
+  { num:90, date:'Jul 4',  venue:'Philadelphia',         t1:'W74', t2:'W77' },
+  { num:91, date:'Jul 5',  venue:'New York / New Jersey',t1:'W76', t2:'W78' },
+  { num:92, date:'Jul 6',  venue:'Mexico City',          t1:'W79', t2:'W80' },
+  { num:93, date:'Jul 6',  venue:'Dallas',               t1:'W83', t2:'W84' },
+  { num:94, date:'Jul 7',  venue:'Seattle',              t1:'W81', t2:'W82' },
+  { num:95, date:'Jul 7',  venue:'Atlanta',              t1:'W86', t2:'W88' },
+  { num:96, date:'Jul 7',  venue:'Vancouver',            t1:'W85', t2:'W87' },
+];
+
+// Map W## to the two teams in that R32 match for display
+function getR32Teams(wCode) {
+  var num = parseInt(wCode.replace('W',''));
+  var match = bracketMatches.find(function(m){ return m.num === num; });
+  if (!match) return wCode;
+  if (match.winner) return match.winner;
+  var n1 = match.t1.conf ? match.t1.name : match.t1.label;
+  var n2 = match.t2.conf ? match.t2.name : match.t2.label;
+  return 'W' + num + ': ' + n1 + ' / ' + n2;
+}
+
+function getR32Person(wCode) {
+  var num = parseInt(wCode.replace('W',''));
+  var match = bracketMatches.find(function(m){ return m.num === num; });
+  if (!match) return '';
+  if (match.winner) return personAssignments[match.winner] || '';
+  var p1 = match.t1.conf ? (personAssignments[match.t1.name] || '') : '';
+  var p2 = match.t2.conf ? (personAssignments[match.t2.name] || '') : '';
+  var persons = [p1, p2].filter(Boolean);
+  var unique = persons.filter(function(v,i,a){ return a.indexOf(v)===i; });
+  return unique.join(' / ');
+}
+
+function isR32Confirmed(wCode) {
+  var num = parseInt(wCode.replace('W',''));
+  var match = bracketMatches.find(function(m){ return m.num === num; });
+  return match && !!match.winner;
+}
+
+function renderR16() {
+  var grid = document.getElementById('r16Grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  r16Matches.forEach(function(m) {
+    var card = document.createElement('div');
+    card.className = 'bracket-match';
+    function r16Row(wCode) {
+      var confirmed = isR32Confirmed(wCode);
+      var label = getR32Teams(wCode);
+      var person = getR32Person(wCode);
+      var personHtml = person ? '<span class="bt-person">'+person+'</span>' : '';
+      var nameClass = confirmed ? 'bt-name confirmed' : 'bt-name tbd';
+      var code = confirmed && CODES[label] ? '<span class="bt-code">'+CODES[label]+'</span>' : '<span class="bt-code"></span>';
+      return '<div class="bracket-team">'+code
+        + '<div class="bt-info">'
+        + '<span class="'+nameClass+'">'+label+'</span>'
+        + personHtml
+        + '</div></div>';
+    }
+    card.innerHTML = '<div class="bracket-match-header">'
+      + '<span class="match-num">Match '+m.num+'</span>'
+      + '<span>'+m.date+' · '+m.venue+'</span>'
+      + '</div>'
+      + r16Row(m.t1)
+      + '<div class="bracket-divider"></div>'
+      + r16Row(m.t2);
+    grid.appendChild(card);
+  });
+}
+renderR16();
 buildRefTable();
 </script>
 </body>
