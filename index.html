@@ -119,7 +119,12 @@
   .ref-group { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); text-align:center; }
   .ref-group span { display:inline-block; background:rgba(201,168,76,.12); color:var(--gold);
     border:1px solid rgba(201,168,76,.25); border-radius:2px; padding:1px 5px; font-size:9px; letter-spacing:1px; }
-  .ref-person { font-family:'DM Mono',monospace; font-size:10px; color:var(--advance); letter-spacing:.3px; }
+  .ref-participant { font-size:12px; font-weight:600; color:var(--text); padding:6px 8px; }
+  .ref-country-cell { display:flex; align-items:center; gap:4px; padding:5px 6px; border-radius:3px; }
+  .ref-country-cell.in  { background:rgba(34,120,60,0.5); color:#a8f0c0; }
+  .ref-country-cell.out { background:rgba(160,30,30,0.5); color:#f0a8a8; text-decoration:line-through; text-decoration-color:rgba(240,100,100,0.5); }
+  .ref-country-cell span:last-child { font-size:9px; letter-spacing:0.2px; line-height:1.2; }
+  .ref-cc { font-family:'DM Mono',monospace; font-size:7px; opacity:.7; flex-shrink:0; }
   /* ── BRACKET ── */
   .bracket-section { max-width:1400px; margin:0 auto 60px; padding:0 24px; }
   .bracket-header { border-top:1px solid var(--card-border); padding:32px 0 20px; }
@@ -183,19 +188,16 @@
 
 <div class="groups-grid" id="groups"></div>
 
-
-
-
   <div class="ref-header">
-    <div class="ref-title">TEAM REFERENCE</div>
-    <div class="ref-subtitle">All 48 nations · FIFA Rankings (June 11, 2026) · Participant assignments</div>
+    <div class="ref-title">PARTICIPANT REFERENCE</div>
+    <div class="ref-subtitle">Country assignments · Green = still in · Red = eliminated</div>
   </div>
   <div class="ref-table-wrap">
     <table class="ref-table" id="refTable"></table>
   </div>
 </section>
 
-<footer>Tournament begins June 11 · Live standings via API-Football · FIFA rankings as of June 11, 2026</footer>
+<footer>Tournament begins June 11 · Round of 32 starts June 28 · Data current as of June 27, 2026</footer>
 
 <script>
 var CODES = {
@@ -475,47 +477,68 @@ function renderGroups() {
   });
 }
 
-var refData = [
-  ['Argentina','J',1],['Spain','H',2],['France','I',3],['England','L',4],
-  ['Portugal','K',5],['Brazil','C',6],['Morocco','C',7],['Netherlands','F',8],
-  ['Belgium','G',9],['Germany','E',10],['Croatia','L',11],['Colombia','K',13],
-  ['Mexico','A',14],['Senegal','I',15],['Uruguay','H',16],['USA','D',17],
-  ['Japan','F',18],['Switzerland','B',19],['Iran','G',20],['Turkiye','D',22],
-  ['Ecuador','E',23],['Austria','J',24],['South Korea','A',25],['Australia','D',27],
-  ['Algeria','J',28],['Egypt','G',29],['Canada','B',30],['Norway','I',31],
-  ['Cote dIvoire','E',33],['Panama','L',34],['Sweden','F',38],['Czechia','A',40],
-  ['Paraguay','D',41],['Scotland','C',42],['Tunisia','F',45],['DR Congo','K',46],
-  ['Uzbekistan','K',50],['Qatar','B',56],['Iraq','I',57],['South Africa','A',60],
-  ['Saudi Arabia','H',61],['Jordan','J',63],['Bosnia & Herz.','B',64],
-  ['Cape Verde','H',67],['Ghana','L',68],['New Zealand','G',72],
-  ['Haiti','C',80],['Curacao','E',85]
+var participants = [
+  ['Makena',    [['England','in'],     ['Jordan','out']]],
+  ['Matthew',   [['Brazil','in'],      ['Czechia','out']]],
+  ['Karen',     [['Argentina','in'],   ['Curaçao','out']]],
+  ['Steve G',   [['Japan','in'],       ['Türkiye','out']]],
+  ['Melia',     [['Belgium','in'],     ['Sweden','in']]],
+  ['Kathy',     [['Ecuador','in'],     ['Austria','in']]],
+  ['Jeff',      [['Spain','in'],       ['Qatar','out']]],
+  ['Caroline',  [['Portugal','in'],    ['Tunisia','out']]],
+  ['Steven',    [['Mexico','in'],      ['Norway','in']]],
+  ['Ally',      [['Morocco','in'],     ['Paraguay','in'],    ['Ghana','in']]],
+  ['Warren',    [['Colombia','in'],    ['Canada','in'],      ['Iraq','out']]],
+  ['Colin',     [['South Africa','in'],['Algeria','in'],     ['Haiti','out']]],
+  ['Olivia',    [['France','in'],      ['DR Congo','in']]],
+  ['Bradley',   [['Switzerland','in'], ['Iran','out']]],
+  ['Owen',      [['USA','in'],         ['Panama','out'],     ['Bosnia & Herz.','in']]],
+  ['Elizabeth', [['Uruguay','out'],    ['South Korea','out'],['Saudi Arabia','in']]],
+  ['Maddie',    [['Senegal','in'],     ['Egypt','in'],       ['Uzbekistan','out']]],
+  ['Linda',     [['Germany','in'],     ['Scotland','out']]],
+  ['Roger',     [['Australia','in'],   ['New Zealand','out']]],
+  ['Brian',     [['Netherlands','in'], ['Cape Verde','in']]],
+  ['Carol',     [['Croatia','in'],     ["Côte d'Ivoire",'in']]]
 ];
 
 function buildRefTable() {
   var table = document.getElementById('refTable');
-  table.innerHTML = '<colgroup><col style="width:10%"><col style="width:42%"><col style="width:10%"><col style="width:38%"></colgroup>'
-    +'<thead><tr><th class="num">Rank</th><th>Country</th><th class="num">Grp</th><th>Participant</th></tr></thead>'
-    +'<tbody id="refBody"></tbody>';
+  if (!table) return;
+  table.innerHTML = '<colgroup>'
+    + '<col style="width:14%">'
+    + '<col style="width:29%">'
+    + '<col style="width:29%">'
+    + '<col style="width:28%">'
+    + '</colgroup>'
+    + '<thead><tr>'
+    + '<th>Participant</th>'
+    + '<th>Country 1</th>'
+    + '<th>Country 2</th>'
+    + '<th>Country 3</th>'
+    + '</tr></thead><tbody id="refBody"></tbody>';
   var tbody = table.querySelector('#refBody');
-  refData.forEach(function(row) {
-    var name = row[0], group = row[1], rank = row[2];
-    var person = personAssignments[name] || '';
-    var rc = rank <= 3 ? 'ref-rank top3' : rank <= 10 ? 'ref-rank top10' : rank <= 30 ? 'ref-rank' : 'ref-rank mid';
-    var code = CODES[name] || '??';
+  participants.forEach(function(row) {
+    var pname = row[0];
+    var countries = row[1];
     var tr = document.createElement('tr');
-    tr.innerHTML = '<td class="'+rc+'">#'+rank+'</td>'
-      +'<td><div class="ref-flag-name">'
-      +'<div class="ref-flag-cell">'+code+'</div>'
-      +'<span class="ref-country">'+displayName(name)+'</span>'
-      +'</div></td>'
-      +'<td class="ref-group"><span>'+group+'</span></td>'
-      +'<td class="ref-person">'+person+'</td>';
+    var cells = '<td class="ref-participant">'+pname+'</td>';
+    for (var i = 0; i < 3; i++) {
+      if (countries[i]) {
+        var cname = countries[i][0];
+        var status = countries[i][1];
+        var code = CODES[cname] || '';
+        var cls = status === 'in' ? 'ref-country-cell in' : 'ref-country-cell out';
+        cells += '<td><div class="'+cls+'"><span class="ref-cc">'+code+'</span><span>'+cname+'</span></div></td>';
+      } else {
+        cells += '<td></td>';
+      }
+    }
+    tr.innerHTML = cells;
     tbody.appendChild(tr);
   });
 }
 
 renderGroups();
-buildRefTable();
 
 // ── ROUND OF 32 BRACKET ───────────────────────────────────────────────────────
 var bracketMatches = [
