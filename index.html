@@ -152,8 +152,11 @@
   .bt-score { font-size:14px; font-weight:600; font-family:'DM Mono',monospace; color:var(--text); flex-shrink:0; padding-left:8px; }
   .bt-score.winner-score { color:var(--gold); }
   .bt-score.loser-score  { color:var(--muted); }
+  .bt-rank { font-size:9px; font-family:'DM Mono',monospace; color:var(--muted); font-weight:400; opacity:.8; }
   .bracket-team .bt-name.winner { color:#7eeaaa; font-weight:600; }
   .bracket-team .bt-name.loser  { color:#e05c5c; text-decoration:line-through; text-decoration-color:rgba(224,92,92,0.6); }
+  .bracket-pens { text-align:center; font-size:9px; font-family:'DM Mono',monospace;
+    color:var(--gold); padding:4px 12px 6px; letter-spacing:1px; text-transform:uppercase; opacity:.85; }
 
   .bracket-divider { height:1px; background:rgba(201,168,76,0.15); margin:0 12px; position:relative; }
   .bracket-divider::after { content:'vs'; position:absolute; left:50%; top:-8px; transform:translateX(-50%);
@@ -229,6 +232,19 @@ var CODES = {
   'Portugal':'PT','Colombia':'CO','DR Congo':'CD','Uzbekistan':'UZ',
   'England':'ENG','Croatia':'HR','Ghana':'GH','Panama':'PA'
 };
+var RANKS = {
+  'Argentina':1,'Spain':2,'France':3,'England':4,'Portugal':5,'Brazil':6,
+  'Morocco':7,'Netherlands':8,'Belgium':9,'Germany':10,'Croatia':11,
+  'Colombia':13,'Mexico':14,'Senegal':15,'Uruguay':16,'USA':17,'Japan':18,
+  'Switzerland':19,'Iran':20,'Turkiye':22,'Ecuador':23,'Austria':24,
+  'South Korea':25,'Australia':27,'Algeria':28,'Egypt':29,'Canada':30,
+  'Norway':31,'Cote dIvoire':33,"Côte d'Ivoire":33,'Panama':34,'Sweden':38,
+  'Czechia':40,'Paraguay':41,'Scotland':42,'Tunisia':45,'DR Congo':46,
+  'Uzbekistan':50,'Qatar':56,'Iraq':57,'South Africa':60,'Saudi Arabia':61,
+  'Jordan':63,'Bosnia & Herz.':64,'Cape Verde':67,'Ghana':68,'New Zealand':72,
+  'Haiti':80,'Curacao':85,'Curaçao':85
+};
+
 
 function flagHTML(name) {
   var code = CODES[name] || '??';
@@ -560,15 +576,15 @@ var bracketMatches = [
   { num:73, date:'Jun 28', venue:'Los Angeles',           winner:'Canada',
     t1:{label:'2nd Group B', name:'Canada',          conf:true, score:1},
     t2:{label:'2nd Group A', name:'South Africa',    conf:true, score:0} },
-  { num:74, date:'Jun 29', venue:'Boston',
-    t1:{label:'1st Group E', name:'Germany',         conf:true},
-    t2:{label:'3rd Group D', name:'Paraguay',        conf:true} },
-  { num:75, date:'Jun 29', venue:'Seattle',
-    t1:{label:'1st Group F', name:'Netherlands',     conf:true},
-    t2:{label:'2nd Group C', name:'Morocco',         conf:true} },
-  { num:76, date:'Jun 29', venue:'Miami',
-    t1:{label:'1st Group C', name:'Brazil',          conf:true},
-    t2:{label:'2nd Group F', name:'Japan',           conf:true} },
+  { num:74, date:'Jun 29', venue:'Boston', winner:'Paraguay', pens:'3-4 PK',
+    t1:{label:'1st Group E', name:'Germany',         conf:true, score:1},
+    t2:{label:'3rd Group D', name:'Paraguay',        conf:true, score:1} },
+  { num:75, date:'Jun 29', venue:'Seattle', winner:'Morocco', pens:'2-3 PK',
+    t1:{label:'1st Group F', name:'Netherlands',     conf:true, score:1},
+    t2:{label:'2nd Group C', name:'Morocco',         conf:true, score:1} },
+  { num:76, date:'Jun 29', venue:'Miami', winner:'Brazil',
+    t1:{label:'1st Group C', name:'Brazil',          conf:true, score:2},
+    t2:{label:'2nd Group F', name:'Japan',           conf:true, score:1} },
   { num:77, date:'Jun 30', venue:'New York / New Jersey',
     t1:{label:'1st Group I', name:'France',          conf:true},
     t2:{label:'3rd Group F', name:'Sweden',          conf:true} },
@@ -619,6 +635,7 @@ function renderBracket() {
       if (isWinner) nameClass = 'bt-name winner';
       if (isLoser)  nameClass = 'bt-name loser';
       var display   = t.conf ? t.name : t.label;
+      var rankHtml  = t.conf && RANKS[t.name] ? ' <span class="bt-rank">#'+RANKS[t.name]+'</span>' : '';
       var code      = t.conf && CODES[t.name] ? '<span class="bt-code">'+CODES[t.name]+'</span>' : '<span class="bt-code"></span>';
       var person    = t.conf && personAssignments[t.name] ? '<span class="bt-person">'+personAssignments[t.name]+'</span>' : '';
       var scoreHtml = '';
@@ -628,7 +645,7 @@ function renderBracket() {
       }
       return '<div class="bracket-team">'+code
         +'<div class="bt-info">'
-        +'<span class="'+nameClass+'">'+display+'</span>'
+        +'<span class="'+nameClass+'">'+display+'</span>'+rankHtml
         +person
         +'</div>'
         +scoreHtml
@@ -636,6 +653,7 @@ function renderBracket() {
     }
     var t1win = m.winner && m.t1.name === m.winner;
     var t2win = m.winner && m.t2.name === m.winner;
+    var pensHtml = m.pens ? '<div class="bracket-pens">'+m.pens+'</div>' : '';
     card.innerHTML = '<div class="bracket-match-header">'
       +'<span class="match-num">Match '+m.num+'</span>'
       +'<span>'+m.date+' · '+m.venue+'</span>'
@@ -643,7 +661,7 @@ function renderBracket() {
       +teamRow(m.t1, t1win, t2win)
       +'<div class="bracket-divider"></div>'
       +teamRow(m.t2, t2win, t1win)
-;
+      +pensHtml;
     grid.appendChild(card);
   });
 }
@@ -704,9 +722,10 @@ function renderR16() {
       var personHtml = person ? '<span class="bt-person">'+person+'</span>' : '';
       var nameClass = confirmed ? 'bt-name confirmed' : 'bt-name tbd';
       var code = confirmed && CODES[label] ? '<span class="bt-code">'+CODES[label]+'</span>' : '<span class="bt-code"></span>';
+      var rankHtml = confirmed && RANKS[label] ? ' <span class="bt-rank">#'+RANKS[label]+'</span>' : '';
       return '<div class="bracket-team">'+code
         + '<div class="bt-info">'
-        + '<span class="'+nameClass+'">'+label+'</span>'
+        + '<span class="'+nameClass+'">'+label+'</span>'+rankHtml
         + personHtml
         + '</div></div>';
     }
