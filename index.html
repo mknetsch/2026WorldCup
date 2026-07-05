@@ -182,19 +182,21 @@
 
 <section class="bracket-section">
   <div class="bracket-header">
+    <div class="bracket-title">ROUND OF 16</div>
+    <div class="bracket-subtitle">July 4–7 · 8 matches · Winners of Round of 32 matches</div>
+  </div>
+  <div class="bracket-grid" id="r16Grid"></div>
+</section>
+
+<section class="bracket-section">
+  <div class="bracket-header">
     <div class="bracket-title">ROUND OF 32</div>
     <div class="bracket-subtitle">June 28–July 3 · 16 matches · Single elimination · Third-place slots determined after all group stage matches complete (June 27)</div>
   </div>
   <div class="bracket-grid" id="bracketGrid"></div>
 </section>
 
-<section class="bracket-section">
-  <div class="bracket-header">
-    <div class="bracket-title">ROUND OF 16</div>
-    <div class="bracket-subtitle">July 4–7 · 8 matches · Winners of Round of 32 matches</div>
-  </div>
-  <div class="bracket-grid" id="r16Grid"></div>
-</section>
+
 
 <div class="legend">
   <div class="legend-item"><div class="legend-dot" style="background:var(--advance)"></div>Automatic qualification (top 2)</div>
@@ -518,8 +520,8 @@ var participants = [
   ['Jeff',      [['Spain','in'],       ['Qatar','out']]],
   ['Caroline',  [['Portugal','in'],    ['Tunisia','out']]],
   ['Steven',    [['Mexico','in'],      ['Norway','in']]],
-  ['Ally',      [['Morocco','in'],     ['Paraguay','in'],    ['Ghana','out']]],
-  ['Warren',    [['Colombia','in'],    ['Canada','in'],      ['Iraq','out']]],
+  ['Ally',      [['Morocco','in'],     ['Paraguay','out'],    ['Ghana','out']]],
+  ['Warren',    [['Colombia','in'],    ['Canada','out'],      ['Iraq','out']]],
   ['Colin',     [['South Africa','out'],['Algeria','out'],     ['Haiti','out']]],
   ['Olivia',    [['France','in'],      ['DR Congo','out']]],
   ['Bradley',   [['Switzerland','in'], ['Iran','out']]],
@@ -669,8 +671,8 @@ renderBracket();
 
 // ── ROUND OF 16 ───────────────────────────────────────────────────────────────
 var r16Matches = [
-  { num:89, date:'Jul 4',  venue:'Houston',             t1:'W73', t2:'W75' },
-  { num:90, date:'Jul 4',  venue:'Philadelphia',         t1:'W74', t2:'W77' },
+  { num:89, date:'Jul 4',  venue:'Houston',              winner:'Morocco',  s1:0, s2:3, t1:'W73', t2:'W75' },
+  { num:90, date:'Jul 4',  venue:'Philadelphia',         winner:'France',   s1:0, s2:1, t1:'W74', t2:'W77' },
   { num:91, date:'Jul 5',  venue:'New York / New Jersey',t1:'W76', t2:'W78' },
   { num:92, date:'Jul 6',  venue:'Mexico City',          t1:'W79', t2:'W80' },
   { num:93, date:'Jul 6',  venue:'Dallas',               t1:'W83', t2:'W84' },
@@ -715,27 +717,38 @@ function renderR16() {
   r16Matches.forEach(function(m) {
     var card = document.createElement('div');
     card.className = 'bracket-match';
-    function r16Row(wCode) {
+    function r16Row(wCode, isWinner, isLoser, score) {
       var confirmed = isR32Confirmed(wCode);
       var label = getR32Teams(wCode);
       var person = getR32Person(wCode);
       var personHtml = person ? '<span class="bt-person">'+person+'</span>' : '';
       var nameClass = confirmed ? 'bt-name confirmed' : 'bt-name tbd';
+      if (isWinner) nameClass = 'bt-name winner';
+      if (isLoser)  nameClass = 'bt-name loser';
       var code = confirmed && CODES[label] ? '<span class="bt-code">'+CODES[label]+'</span>' : '<span class="bt-code"></span>';
       var rankHtml = confirmed && RANKS[label] ? ' <span class="bt-rank">#'+RANKS[label]+'</span>' : '';
+      var scoreHtml = score !== undefined ? '<span class="'+(isWinner?'bt-score winner-score':'bt-score loser-score')+'">'+score+'</span>' : '';
       return '<div class="bracket-team">'+code
         + '<div class="bt-info">'
         + '<span class="'+nameClass+'">'+label+'</span>'+rankHtml
         + personHtml
-        + '</div></div>';
+        + '</div>'
+        + scoreHtml
+        + '</div>';
     }
+    var t1name = getR32Teams(m.t1);
+    var t2name = getR32Teams(m.t2);
+    var t1win = m.winner && t1name === m.winner;
+    var t2win = m.winner && t2name === m.winner;
+    var pensHtml = m.pens ? '<div class="bracket-pens">'+m.pens+'</div>' : '';
     card.innerHTML = '<div class="bracket-match-header">'
       + '<span class="match-num">Match '+m.num+'</span>'
       + '<span>'+m.date+' · '+m.venue+'</span>'
       + '</div>'
-      + r16Row(m.t1)
+      + r16Row(m.t1, t1win, t2win, m.winner ? m.s1 : undefined)
       + '<div class="bracket-divider"></div>'
-      + r16Row(m.t2);
+      + r16Row(m.t2, t2win, t1win, m.winner ? m.s2 : undefined)
+      + pensHtml;
     grid.appendChild(card);
   });
 }
