@@ -182,19 +182,21 @@
 
 <section class="bracket-section">
   <div class="bracket-header">
+    <div class="bracket-title">QUARTERFINALS</div>
+    <div class="bracket-subtitle">July 9–11 · 4 matches · Winners of Round of 16</div>
+  </div>
+  <div class="bracket-grid" id="qfGrid"></div>
+</section>
+
+<section class="bracket-section">
+  <div class="bracket-header">
     <div class="bracket-title">ROUND OF 16</div>
     <div class="bracket-subtitle">July 4–7 · 8 matches · Winners of Round of 32 matches</div>
   </div>
   <div class="bracket-grid" id="r16Grid"></div>
 </section>
 
-<section class="bracket-section">
-  <div class="bracket-header">
-    <div class="bracket-title">QUARTERFINALS</div>
-    <div class="bracket-subtitle">July 9–11 · 4 matches · Winners of Round of 16</div>
-  </div>
-  <div class="bracket-grid" id="qfGrid"></div>
-</section>
+
 
 <section class="bracket-section">
   <div class="bracket-header">
@@ -529,13 +531,13 @@ var participants = [
   ['Caroline',  [['Portugal','out'],    ['Tunisia','out']]],
   ['Steven',    [['Mexico','out'],      ['Norway','in']]],
   ['Ally',      [['Morocco','in'],     ['Paraguay','out'],    ['Ghana','out']]],
-  ['Warren',    [['Colombia','in'],    ['Canada','out'],      ['Iraq','out']]],
+  ['Warren',    [['Colombia','out'],    ['Canada','out'],      ['Iraq','out']]],
   ['Colin',     [['South Africa','out'],['Algeria','out'],     ['Haiti','out']]],
   ['Olivia',    [['France','in'],      ['DR Congo','out']]],
   ['Bradley',   [['Switzerland','in'], ['Iran','out']]],
   ['Owen',      [['USA','out'],         ['Panama','out'],     ['Bosnia & Herz.','out']]],
   ['Elizabeth', [['Uruguay','out'],    ['South Korea','out'],['Saudi Arabia','out']]],
-  ['Maddie',    [['Senegal','out'],     ['Egypt','in'],       ['Uzbekistan','out']]],
+  ['Maddie',    [['Senegal','out'],     ['Egypt','out'],       ['Uzbekistan','out']]],
   ['Linda',     [['Germany','out'],     ['Scotland','out']]],
   ['Roger',     [['Australia','out'],   ['New Zealand','out']]],
   ['Brian',     [['Netherlands','out'], ['Cape Verde','out']]],
@@ -685,8 +687,8 @@ var r16Matches = [
   { num:92, date:'Jul 6',  venue:'Mexico City',          winner:'England', s1:2, s2:3, t1:'W79', t2:'W80' },
   { num:93, date:'Jul 6',  venue:'Dallas',               winner:'Spain',   s1:0, s2:1, t1:'W83', t2:'W84' },
   { num:94, date:'Jul 7',  venue:'Seattle',              winner:'Belgium', s1:1, s2:4, t1:'W81', t2:'W82' },
-  { num:95, date:'Jul 7',  venue:'Atlanta',              t1:'W86', t2:'W88' },
-  { num:96, date:'Jul 7',  venue:'Vancouver',            t1:'W85', t2:'W87' },
+  { num:95, date:'Jul 7',  venue:'Atlanta',              winner:'Argentina', s1:3, s2:2, t1:'W86', t2:'W88' },
+  { num:96, date:'Jul 7',  venue:'Vancouver',            winner:'Switzerland', pens:'4-3 PK', s1:0, s2:0, t1:'W85', t2:'W87' },
 ];
 
 // Map W## to the two teams in that R32 match for display
