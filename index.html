@@ -1013,8 +1013,54 @@ function renderFinal() {
   var m = finalMatch;
   var card = document.createElement('div');
   card.className = 'bracket-match';
-  var t1name = getQFTeams(m.t1);
-  var t2name = getQFTeams(m.t2);
+
+  function sfWinner(wCode) {
+    var num = parseInt(wCode.replace('W',''));
+    var match = sfMatches.find(function(x){ return x.num === num; });
+    if (!match || !match.winner) return null;
+    return match.winner;
+  }
+  function sfTeamLabel(wCode) {
+    var w = sfWinner(wCode);
+    if (w) return w;
+    var num = parseInt(wCode.replace('W',''));
+    var match = sfMatches.find(function(x){ return x.num === num; });
+    if (!match) return wCode;
+    var t1 = getQFTeams(match.t1);
+    var t2 = getQFTeams(match.t2);
+    return 'W'+num+': '+t1+' / '+t2;
+  }
+  function sfPerson(wCode) {
+    var w = sfWinner(wCode);
+    return w ? (personAssignments[w] || '') : '';
+  }
+  function sfLoser(wCode) {
+    var num = parseInt(wCode.replace('L',''));
+    var match = sfMatches.find(function(x){ return x.num === num; });
+    if (!match || !match.winner) return null;
+    var t1name = getQFTeams(match.t1);
+    var t2name = getQFTeams(match.t2);
+    return match.winner === t1name ? t2name : t1name;
+  }
+
+  function finalRow(wCode, isWinner, isLoser, score, isThird) {
+    var label = isThird ? (sfLoser(wCode) || wCode) : sfTeamLabel(wCode);
+    var person = isThird ? (personAssignments[label] || '') : sfPerson(wCode);
+    var isConf = isThird ? !!sfLoser(wCode) : !!sfWinner(wCode);
+    var personHtml = person ? '<span class="bt-person">'+person+'</span>' : '';
+    var nameClass = isConf ? 'bt-name confirmed' : 'bt-name tbd';
+    if (isWinner) nameClass = 'bt-name winner';
+    if (isLoser)  nameClass = 'bt-name loser';
+    var code = isConf && CODES[label] ? '<span class="bt-code">'+CODES[label]+'</span>' : '<span class="bt-code"></span>';
+    var rankHtml = isConf && RANKS[label] ? ' <span class="bt-rank">#'+RANKS[label]+'</span>' : '';
+    var scoreHtml = score !== undefined ? '<span class="'+(isWinner?'bt-score winner-score':'bt-score loser-score')+'">'+score+'</span>' : '';
+    return '<div class="bracket-team">'+code
+      +'<div class="bt-info"><span class="'+nameClass+'">'+label+'</span>'+rankHtml+personHtml+'</div>'
+      +scoreHtml+'</div>';
+  }
+
+  var t1name = sfTeamLabel(m.t1);
+  var t2name = sfTeamLabel(m.t2);
   var t1win = m.winner && t1name === m.winner;
   var t2win = m.winner && t2name === m.winner;
   var pensHtml = m.pens ? '<div class="bracket-pens">'+m.pens+'</div>' : '';
@@ -1022,9 +1068,9 @@ function renderFinal() {
     +'<span class="match-num">Match '+m.num+'</span>'
     +'<span>'+m.date+' · '+m.venue+'</span>'
     +'</div>'
-    +renderFinalRow(m.t1, t1win, t2win, m.winner ? m.s1 : undefined, false)
+    +finalRow(m.t1, t1win, t2win, m.winner ? m.s1 : undefined, false)
     +'<div class="bracket-divider"></div>'
-    +renderFinalRow(m.t2, t2win, t1win, m.winner ? m.s2 : undefined, false)
+    +finalRow(m.t2, t2win, t1win, m.winner ? m.s2 : undefined, false)
     +pensHtml;
   grid.appendChild(card);
 }
@@ -1036,8 +1082,34 @@ function renderThird() {
   var m = thirdMatch;
   var card = document.createElement('div');
   card.className = 'bracket-match';
-  var t1name = getSFLoser(m.t1);
-  var t2name = getSFLoser(m.t2);
+
+  function sfLoser(lCode) {
+    var num = parseInt(lCode.replace('L',''));
+    var match = sfMatches.find(function(x){ return x.num === num; });
+    if (!match || !match.winner) return null;
+    var t1name = getQFTeams(match.t1);
+    var t2name = getQFTeams(match.t2);
+    return match.winner === t1name ? t2name : t1name;
+  }
+
+  function thirdRow(lCode, isWinner, isLoser, score) {
+    var label = sfLoser(lCode) || lCode;
+    var person = personAssignments[label] || '';
+    var isConf = !!sfLoser(lCode);
+    var personHtml = person ? '<span class="bt-person">'+person+'</span>' : '';
+    var nameClass = isConf ? 'bt-name confirmed' : 'bt-name tbd';
+    if (isWinner) nameClass = 'bt-name winner';
+    if (isLoser)  nameClass = 'bt-name loser';
+    var code = isConf && CODES[label] ? '<span class="bt-code">'+CODES[label]+'</span>' : '<span class="bt-code"></span>';
+    var rankHtml = isConf && RANKS[label] ? ' <span class="bt-rank">#'+RANKS[label]+'</span>' : '';
+    var scoreHtml = score !== undefined ? '<span class="'+(isWinner?'bt-score winner-score':'bt-score loser-score')+'">'+score+'</span>' : '';
+    return '<div class="bracket-team">'+code
+      +'<div class="bt-info"><span class="'+nameClass+'">'+label+'</span>'+rankHtml+personHtml+'</div>'
+      +scoreHtml+'</div>';
+  }
+
+  var t1name = sfLoser(m.t1);
+  var t2name = sfLoser(m.t2);
   var t1win = m.winner && t1name === m.winner;
   var t2win = m.winner && t2name === m.winner;
   var pensHtml = m.pens ? '<div class="bracket-pens">'+m.pens+'</div>' : '';
@@ -1045,9 +1117,9 @@ function renderThird() {
     +'<span class="match-num">3rd Place</span>'
     +'<span>'+m.date+' · '+m.venue+'</span>'
     +'</div>'
-    +renderFinalRow(m.t1, t1win, t2win, m.winner ? m.s1 : undefined, true)
+    +thirdRow(m.t1, t1win, t2win, m.winner ? m.s1 : undefined)
     +'<div class="bracket-divider"></div>'
-    +renderFinalRow(m.t2, t2win, t1win, m.winner ? m.s2 : undefined, true)
+    +thirdRow(m.t2, t2win, t1win, m.winner ? m.s2 : undefined)
     +pensHtml;
   grid.appendChild(card);
 }
