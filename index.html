@@ -182,6 +182,22 @@
 
 <section class="bracket-section">
   <div class="bracket-header">
+    <div class="bracket-title">FINAL</div>
+    <div class="bracket-subtitle">July 19 · MetLife Stadium, East Rutherford NJ</div>
+  </div>
+  <div class="bracket-grid" id="finalGrid"></div>
+</section>
+
+<section class="bracket-section">
+  <div class="bracket-header">
+    <div class="bracket-title">THIRD PLACE</div>
+    <div class="bracket-subtitle">July 18 · Hard Rock Stadium, Miami Gardens FL</div>
+  </div>
+  <div class="bracket-grid" id="thirdGrid"></div>
+</section>
+
+<section class="bracket-section">
+  <div class="bracket-header">
     <div class="bracket-title">SEMIFINALS</div>
     <div class="bracket-subtitle">July 14–15 · 2 matches · Winners of Quarterfinals</div>
   </div>
@@ -529,7 +545,7 @@ function renderGroups() {
 }
 
 var participants = [
-  ['Makena',    [['England','in'],     ['Jordan','out']]],
+  ['Makena',    [['England','out'],     ['Jordan','out']]],
   ['Matthew',   [['Brazil','out'],      ['Czechia','out']]],
   ['Karen',     [['Argentina','in'],   ['Curaçao','out']]],
   ['Steve G',   [['Japan','out'],       ['Türkiye','out']]],
@@ -541,7 +557,7 @@ var participants = [
   ['Ally',      [['Morocco','out'],     ['Paraguay','out'],    ['Ghana','out']]],
   ['Warren',    [['Colombia','out'],    ['Canada','out'],      ['Iraq','out']]],
   ['Colin',     [['South Africa','out'],['Algeria','out'],     ['Haiti','out']]],
-  ['Olivia',    [['France','in'],      ['DR Congo','out']]],
+  ['Olivia',    [['France','out'],      ['DR Congo','out']]],
   ['Bradley',   [['Switzerland','out'], ['Iran','out']]],
   ['Owen',      [['USA','out'],         ['Panama','out'],     ['Bosnia & Herz.','out']]],
   ['Elizabeth', [['Uruguay','out'],    ['South Korea','out'],['Saudi Arabia','out']]],
@@ -861,8 +877,8 @@ renderQF();
 
 // ── SEMIFINALS ────────────────────────────────────────────────────────────────
 var sfMatches = [
-  { num:101, date:'Jul 14', venue:'Dallas',  t1:'W97', t2:'W98' },
-  { num:102, date:'Jul 15', venue:'Atlanta', t1:'W99', t2:'W100' },
+  { num:101, date:'Jul 14', venue:'Dallas',  winner:'Spain',  s1:0, s2:2, t1:'W97', t2:'W98' },
+  { num:102, date:'Jul 15', venue:'Atlanta', winner:'Argentina', s1:1, s2:2, t1:'W99', t2:'W100' },
 ];
 
 function getQFWinner(wCode) {
@@ -940,6 +956,105 @@ function renderSF() {
   });
 }
 renderSF();
+
+// ── FINAL & THIRD PLACE ───────────────────────────────────────────────────────
+var finalMatch  = { num:103, date:'Jul 19', venue:'East Rutherford NJ', t1:'W101', t2:'W102' };
+var thirdMatch  = { num:'3P', date:'Jul 18', venue:'Miami Gardens FL',  t1:'L101', t2:'L102' };
+
+// Get SF loser for 3rd place match
+function getSFLoser(wCode) {
+  var num = parseInt(wCode.replace('L',''));
+  var match = sfMatches.find(function(m){ return m.num === num; });
+  if (!match || !match.winner) return null;
+  var t1name = getQFTeams(match.t1);
+  var t2name = getQFTeams(match.t2);
+  return match.winner === t1name ? t2name : t1name;
+}
+
+function getSFLoserPerson(wCode) {
+  var loser = getSFLoser(wCode);
+  if (!loser) return '';
+  return personAssignments[loser] || '';
+}
+
+function isSFPlayed(wCode) {
+  var num = parseInt(wCode.replace('L',''));
+  var match = sfMatches.find(function(m){ return m.num === num; });
+  return match && !!match.winner;
+}
+
+function renderFinalRow(wCode, isWinner, isLoser, score, isThird) {
+  var getSF = isThird ? getSFLoser : getQFWinner;
+  var getTeams = isThird ? function(c){
+    var t = getSFLoser(c); return t || 'W'+c.replace('L','')+ ' loser';
+  } : getQFTeams;
+  var getPerson = isThird ? getSFLoserPerson : getQFPerson;
+  var isConf = isThird ? isSFPlayed(wCode) : isQFConfirmed(wCode);
+
+  var label = isThird ? (getSFLoser(wCode) || 'SF'+wCode.replace('L','')+' loser') : getQFTeams(wCode);
+  var person = getPerson(wCode);
+  var personHtml = person ? '<span class="bt-person">'+person+'</span>' : '';
+  var nameClass = isConf ? 'bt-name confirmed' : 'bt-name tbd';
+  if (isWinner) nameClass = 'bt-name winner';
+  if (isLoser)  nameClass = 'bt-name loser';
+  var code = isConf && CODES[label] ? '<span class="bt-code">'+CODES[label]+'</span>' : '<span class="bt-code"></span>';
+  var rankHtml = isConf && RANKS[label] ? ' <span class="bt-rank">#'+RANKS[label]+'</span>' : '';
+  var scoreHtml = score !== undefined ? '<span class="'+(isWinner?'bt-score winner-score':'bt-score loser-score')+'">'+score+'</span>' : '';
+  return '<div class="bracket-team">'+code
+    +'<div class="bt-info">'
+    +'<span class="'+nameClass+'">'+label+'</span>'+rankHtml
+    +personHtml+'</div>'+scoreHtml+'</div>';
+}
+
+function renderFinal() {
+  var grid = document.getElementById('finalGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  var m = finalMatch;
+  var card = document.createElement('div');
+  card.className = 'bracket-match';
+  var t1name = getQFTeams(m.t1);
+  var t2name = getQFTeams(m.t2);
+  var t1win = m.winner && t1name === m.winner;
+  var t2win = m.winner && t2name === m.winner;
+  var pensHtml = m.pens ? '<div class="bracket-pens">'+m.pens+'</div>' : '';
+  card.innerHTML = '<div class="bracket-match-header">'
+    +'<span class="match-num">Match '+m.num+'</span>'
+    +'<span>'+m.date+' · '+m.venue+'</span>'
+    +'</div>'
+    +renderFinalRow(m.t1, t1win, t2win, m.winner ? m.s1 : undefined, false)
+    +'<div class="bracket-divider"></div>'
+    +renderFinalRow(m.t2, t2win, t1win, m.winner ? m.s2 : undefined, false)
+    +pensHtml;
+  grid.appendChild(card);
+}
+
+function renderThird() {
+  var grid = document.getElementById('thirdGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  var m = thirdMatch;
+  var card = document.createElement('div');
+  card.className = 'bracket-match';
+  var t1name = getSFLoser(m.t1);
+  var t2name = getSFLoser(m.t2);
+  var t1win = m.winner && t1name === m.winner;
+  var t2win = m.winner && t2name === m.winner;
+  var pensHtml = m.pens ? '<div class="bracket-pens">'+m.pens+'</div>' : '';
+  card.innerHTML = '<div class="bracket-match-header">'
+    +'<span class="match-num">3rd Place</span>'
+    +'<span>'+m.date+' · '+m.venue+'</span>'
+    +'</div>'
+    +renderFinalRow(m.t1, t1win, t2win, m.winner ? m.s1 : undefined, true)
+    +'<div class="bracket-divider"></div>'
+    +renderFinalRow(m.t2, t2win, t1win, m.winner ? m.s2 : undefined, true)
+    +pensHtml;
+  grid.appendChild(card);
+}
+
+renderFinal();
+renderThird();
+
 
 
 buildRefTable();
