@@ -162,6 +162,58 @@
   .bracket-divider::after { content:'vs'; position:absolute; left:50%; top:-8px; transform:translateX(-50%);
     font-size:8px; font-family:'DM Mono',monospace; color:var(--gold); background:var(--card); padding:0 4px; }
 
+
+  /* ── LEADERBOARD ── */
+  .leaderboard-section { max-width:1400px; margin:0 auto 0; padding:0 24px 40px; }
+  .leaderboard-header { padding:32px 0 20px; }
+  .leaderboard-title { font-family:'Bebas Neue',sans-serif; font-size:36px; letter-spacing:4px;
+    color:var(--gold); text-shadow:0 0 40px rgba(201,168,76,0.3); }
+  .leaderboard-subtitle { font-size:10px; letter-spacing:2px; text-transform:uppercase;
+    color:var(--muted); font-family:'DM Mono',monospace; margin-top:4px; }
+  .leaderboard-grid { display:grid; grid-template-columns:2fr 1fr; gap:14px; align-items:stretch; }
+  .lb-others { display:grid; grid-template-columns:1fr; gap:10px; }
+  .lb-card { background:var(--card); border:1px solid var(--card-border); border-radius:6px;
+    padding:20px 16px; text-align:center; position:relative; overflow:hidden;
+    transition:transform .2s; animation:fadeUp .5s ease both; display:flex;
+    flex-direction:column; justify-content:center; }
+  .lb-card:hover { transform:translateY(-3px); }
+  .lb-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+  .lb-card.first  { border-color:rgba(255,215,0,0.5); background:rgba(255,215,0,0.05); }
+  .lb-card.first::before  { background:linear-gradient(90deg,transparent,#FFD700,transparent); }
+  .lb-card.second { border-color:rgba(192,192,192,0.4); }
+  .lb-card.second::before { background:linear-gradient(90deg,transparent,#C0C0C0,transparent); }
+  .lb-card.third  { border-color:rgba(205,127,50,0.4); }
+  .lb-card.third::before  { background:linear-gradient(90deg,transparent,#CD7F32,transparent); }
+  .lb-card.fourth { border-color:var(--card-border); }
+  .lb-card.fourth::before { background:linear-gradient(90deg,transparent,var(--muted),transparent); }
+  .lb-place { font-family:'Bebas Neue',sans-serif; letter-spacing:2px; margin-bottom:8px; }
+  .lb-card.first  .lb-place { font-size:52px; color:#FFD700; text-shadow:0 0 30px rgba(255,215,0,0.4); }
+  .lb-card.second .lb-place { font-size:28px; color:#C0C0C0; }
+  .lb-card.third  .lb-place { font-size:28px; color:#CD7F32; }
+  .lb-card.fourth .lb-place { font-size:22px; color:var(--muted); padding-top:2px; }
+  .lb-team { font-weight:600; color:var(--text); margin-bottom:6px;
+    display:flex; align-items:center; justify-content:center; gap:8px; }
+  .lb-card.first  .lb-team { font-size:26px; }
+  .lb-card.second .lb-team,
+  .lb-card.third  .lb-team,
+  .lb-card.fourth .lb-team { font-size:15px; }
+  .lb-code { font-family:'DM Mono',monospace; background:rgba(0,0,0,0.3);
+    border:1px solid var(--card-border); border-radius:2px; color:var(--muted); flex-shrink:0; }
+  .lb-card.first  .lb-code { font-size:11px; padding:2px 7px; }
+  .lb-card.second .lb-code,
+  .lb-card.third  .lb-code,
+  .lb-card.fourth .lb-code { font-size:9px; padding:1px 5px; }
+  .lb-person { font-family:'DM Mono',monospace; letter-spacing:1.5px;
+    text-transform:uppercase; color:var(--advance); opacity:.9; }
+  .lb-card.first  .lb-person { font-size:14px; }
+  .lb-card.second .lb-person,
+  .lb-card.third  .lb-person,
+  .lb-card.fourth .lb-person { font-size:10px; }
+  @media(max-width:600px) {
+    .leaderboard-grid { grid-template-columns:1fr; }
+    .lb-others { grid-template-columns:repeat(3,1fr); }
+  }
+
   footer { text-align:center; padding:24px; font-size:11px; letter-spacing:1.5px; color:var(--muted);
     font-family:'DM Mono',monospace; border-top:1px solid var(--card-border); max-width:1400px; margin:0 auto; text-transform:uppercase; }
   @media(max-width:480px){ .groups-grid{padding:0 12px 60px;gap:14px} h1{font-size:56px} }
@@ -179,6 +231,38 @@
     <span>&#127474;&#127480; Mexico</span>
   </div>
 </header>
+
+<section class="leaderboard-section">
+  <div class="leaderboard-header">
+    <div class="leaderboard-title">FINAL STANDINGS</div>
+    <div class="leaderboard-subtitle">2026 FIFA World Cup · North America</div>
+  </div>
+  <div class="leaderboard-grid">
+    <div class="lb-card first">
+      <div class="lb-place">🥇</div>
+      <div class="lb-team"><span class="lb-code">ES</span> Spain</div>
+      <div class="lb-person">Jeff</div>
+    </div>
+    <div class="lb-others">
+      <div class="lb-card second">
+        <div class="lb-place">🥈</div>
+        <div class="lb-team"><span class="lb-code">AR</span> Argentina</div>
+        <div class="lb-person">Karen</div>
+      </div>
+      <div class="lb-card third">
+        <div class="lb-place">🥉</div>
+        <div class="lb-team"><span class="lb-code">ENG</span> England</div>
+        <div class="lb-person">Makena</div>
+      </div>
+      <div class="lb-card fourth">
+        <div class="lb-place">4th</div>
+        <div class="lb-team"><span class="lb-code">FR</span> France</div>
+        <div class="lb-person">Olivia</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 
 <section class="bracket-section">
   <div class="bracket-header">
@@ -547,7 +631,7 @@ function renderGroups() {
 var participants = [
   ['Makena',    [['England','out'],     ['Jordan','out']]],
   ['Matthew',   [['Brazil','out'],      ['Czechia','out']]],
-  ['Karen',     [['Argentina','in'],   ['Curaçao','out']]],
+  ['Karen',     [['Argentina','out'],   ['Curaçao','out']]],
   ['Steve G',   [['Japan','out'],       ['Türkiye','out']]],
   ['Melia',     [['Belgium','out'],     ['Sweden','out']]],
   ['Kathy',     [['Ecuador','out'],     ['Austria','out']]],
@@ -958,8 +1042,8 @@ function renderSF() {
 renderSF();
 
 // ── FINAL & THIRD PLACE ───────────────────────────────────────────────────────
-var finalMatch  = { num:103, date:'Jul 19', venue:'East Rutherford NJ', t1:'W101', t2:'W102' };
-var thirdMatch  = { num:'3P', date:'Jul 18', venue:'Miami Gardens FL',  t1:'L101', t2:'L102' };
+var finalMatch  = { num:103, date:'Jul 19', venue:'East Rutherford NJ', winner:'Spain', pens:'1-0 a.e.t.', s1:1, s2:0, t1:'W101', t2:'W102' };
+var thirdMatch  = { num:'3P', date:'Jul 18', venue:'Miami Gardens FL',  winner:'England', s1:4, s2:6, t1:'L101', t2:'L102' };
 
 // Get SF loser for 3rd place match
 function getSFLoser(wCode) {
